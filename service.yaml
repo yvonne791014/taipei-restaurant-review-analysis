@@ -1,0 +1,35 @@
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: taipei-restaurant-review-analysis
+  namespace: 'YOUR_PROJECT_NUMBER' # 可留空，或替換為 GCP Project Number/ID
+  labels:
+    cloud.googleapis.com/location: asia-east1 # 部署於台灣 (彰化) 區域
+spec:
+  template:
+    metadata:
+      annotations:
+        autoscaling.knative.dev/maxScale: '3' # 限制最大連線容器數，避免資料庫被塞爆/節省成本
+        autoscaling.knative.dev/minScale: '0' # 自動縮減至 0，沒使用時不計費
+    spec:
+      containerConcurrency: 80 # 每個容器可同時處理的請求數量
+      containers:
+        - image: asia-east1-docker.pkg.dev/YOUR_PROJECT_ID/taipei-restaurant-repo/taipei-restaurant-review-analysis:latest # 請替換為您的 Artifact Registry 映像檔路徑
+          ports:
+            - containerPort: 8080
+          resources:
+            limits:
+              cpu: 1000m # 1 vCPU
+              memory: 512Mi
+          env:
+            # 資料庫連線環境變數設定
+            - name: DB_HOST
+              value: "YOUR_DB_HOST"
+            - name: DB_PORT
+              value: "3306"
+            - name: DB_USER
+              value: "YOUR_DB_USER"
+            - name: DB_PASSWORD
+              value: "YOUR_DB_PASSWORD"
+            - name: DB_NAME
+              value: "REVIEW"
