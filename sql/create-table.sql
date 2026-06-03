@@ -4,12 +4,12 @@ use REVIEW;
 
 create table restaurant(
 	restaurant_id varchar(30) NOT NULL comment '餐廳編號(from apify)',
-    restaurant_name VARCHAR(100) not null comment '餐廳名稱',
+    restaurant_name VARCHAR(500) not null comment '餐廳名稱',
     total_score DECIMAL(2,1) comment '平均分數',
     reviews_count int comment '評論數',
     state char(3) not null comment '行政區',
-    category_name varchar(10) comment '分類',
-    google_map_url VARCHAR(512) not null comment '餐廳網址連結',
+    category_name varchar(255) comment '分類',
+    google_map_url TEXT not null comment '餐廳網址連結',
     created_at datetime default now() comment '資料建立時間',
 	updated_at datetime default now() comment '資料更新時間',
 	PRIMARY KEY(restaurant_id)
@@ -17,12 +17,12 @@ create table restaurant(
 
 create table low_rating_restaurant(
 	restaurant_id varchar(30) NOT NULL comment '餐廳編號(from apify)',
-    restaurant_name VARCHAR(100) not null comment '餐廳名稱',
+    restaurant_name VARCHAR(500) not null comment '餐廳名稱',
     total_score DECIMAL(2,1) comment '平均分數',
     reviews_count int comment '評論數',
     state char(3) not null comment '行政區',
-    category_name varchar(10) comment '分類',
-    google_map_url VARCHAR(512) not null comment '餐廳網址連結',
+    category_name varchar(255) comment '分類',
+    google_map_url TEXT not null comment '餐廳網址連結',
     created_at datetime default now() comment '資料建立時間',
     updated_at datetime default now() comment '資料更新時間',
 	PRIMARY KEY(restaurant_id)
