@@ -26,7 +26,7 @@ sql = '''
 	restaurant
 	where 
 	total_score < 3.8
-    and reviews_count > 100
+    and reviews_count >= 100
 
 '''
 
