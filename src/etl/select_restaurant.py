@@ -16,11 +16,31 @@ print('Successfully connected!')
 
 cursor = conn.cursor()
 
-sql =""" 
-    select google_map_url 
-    from low_rating_restaurant
-    order by state;
+
+# 這一段是抓取全部區域的網址
+# sql =""" 
+#     select google_map_url 
+#     from low_rating_restaurant
+#     order by state;
+# """
+# # 將指令放進 cursor 物件，並執行
+# cursor.execute(sql)
+
+# data = cursor.fetchall()
+
+# data_urls = [url[0] for url in data]
+
+# print(data_urls)
+
+
+
+# 只抓取北投區的網址
+sql = """
+select google_map_url
+from low_rating_restaurant
+where state = '北投區';
 """
+
 # 將指令放進 cursor 物件，並執行
 cursor.execute(sql)
 
@@ -31,6 +51,7 @@ data_urls = [url[0] for url in data]
 print(data_urls)
 
 
-
+cursor.close()
+conn.close()
 
  
