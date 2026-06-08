@@ -39,6 +39,7 @@ create table reviews(
     food int unsigned default 0 comment '評分-食物, 0分代表沒給分數',
     service int unsigned default 0 comment '評分-服務, 0分代表沒給分數',
     atmosphere int unsigned default 0 comment '評分-環境氣氛, 0分代表沒給分數',
-    PRIMARY KEY(review_id)    
+    PRIMARY KEY(review_id),
+    constraint FK_REVIEWS_LOWRATING foreign key (restaurant_id)
+    references low_rating_restaurant(restaurant_id)
 );
-
