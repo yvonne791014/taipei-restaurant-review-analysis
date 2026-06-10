@@ -54,7 +54,7 @@ Table reviews_analyze {
   issue_type_id tinyint [not null, note: "問題類型ID"]
 
   sentiment tinyint [not null, note: "情緒：1=正向，-1=負向"]
-
+  ai_feeback_keywords varcher(500) [note: "AI抓出的關鍵字"]
   created_at datetime [not null, default: `now()`, note: "資料建立時間"]
   updated_at datetime [not null, default: `now()`, note: "資料更新時間"]
 }

@@ -49,7 +49,7 @@ create table issue_type(
   issue_code char(1) not null comment '問題類型代碼',
   issue_ename varchar(20) not null comment '問題類型英文名稱',
   issue_cname varchar(10) not null comment '問題類型中文名稱',
-  key_words varchar(200) comment 'AI用來分析的關鍵字',
+  key_words varchar(200) comment '給AI用來分析的關鍵字',
   PRIMARY KEY(issue_type_id)
 );
 
@@ -69,6 +69,7 @@ create table reviews_analyze(
 	review_id varchar(128) NOT NULL comment '評論編號',
     issue_type_id tinyint UNSIGNED NOT NULL comment 'ID',
     sentiment tinyint not null comment '情緒 1=正向, -1=負向',
+    ai_feeback_keywords varchar(500) comment 'AI抓出的關鍵字',
     created_at datetime not null default now() comment '資料建立時間',
 	updated_at datetime not null default now() comment '資料更新時間',
     PRIMARY KEY(analyze_id),
