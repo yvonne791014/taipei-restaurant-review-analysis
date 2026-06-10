@@ -9,6 +9,22 @@ json_files = glob.glob(os.path.join(data_folder, '*.json'))
 # 用來存放所有檔案整合後的總資料 List
 insert_data_list = []
 
+# 定義台北市的 12 個行政區名稱（用來後續過濾資料，確保只匯入台北市的餐廳）
+taipei_districts = {
+    "中正區",
+    "大同區",
+    "中山區",
+    "松山區",
+    "大安區",
+    "萬華區",
+    "信義區",
+    "士林區",
+    "北投區",
+    "內湖區",
+    "南港區",
+    "文山區"
+}
+
 # 💡 新增：用一個集合（Set）來記錄已經抓過的 restaurant_id，利用 Set 查詢速度極快的特性防重
 restaurant_set = set()
 
@@ -52,9 +68,10 @@ for file_path in json_files:
             
             clean_id = str(restaurant_id).strip()
             
-            # 判斷這個 ID 是不是已經在 seen_ids 裡面了？
-            if clean_id in restaurant_set:
-                continue # 如果重複了，直接跳過這筆，不要了！
+            # 判斷這個 ID 是不是已經在 seen_ids 裡面了？如果重複了，直接跳過這筆，不要了！
+            # 同時也要確保這筆資料的行政區是台北市的 12 個行政區之一，如果不是，也直接跳過
+            if (clean_id in restaurant_set) or (state not in taipei_districts):
+                continue 
                 
             # 如果是第一次看到，就加進 seen_ids 記錄起來
             restaurant_set.add(clean_id)
