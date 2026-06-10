@@ -47,7 +47,7 @@ for file_path in json_files:
         # 擷取對應欄位
         restaurant_id = item.get('placeId')
         restaurant_name = item.get('title')
-        total_score = item.get('totalScore')
+        avg_score = item.get('totalScore')
         reviews_count = item.get('reviewsCount')
         
         # 處理行政區欄位
@@ -80,7 +80,7 @@ for file_path in json_files:
             record = (
                 clean_id,
                 str(restaurant_name).strip(),
-                float(total_score) if total_score is not None else None,
+                float(avg_score) if avg_score is not None else None,
                 int(reviews_count) if reviews_count is not None else None,
                 str(state).strip(),
                 str(category_name)[:10].strip() if category_name else None,
@@ -112,7 +112,7 @@ print("="*50)
 #     # 擷取對應欄位
 #     restaurant_id = item.get('placeId')
 #     restaurant_name = item.get('title')
-#     total_score = item.get('totalScore')
+#     avg_score = item.get('totalScore')
 #     reviews_count = item.get('reviewsCount')
     
 #     # 處理行政區欄位
@@ -123,7 +123,7 @@ print("="*50)
 #     google_map_url = item.get('url')
     
 #     # 將解析好的欄位打包成一個 tuple，順序要跟後面的 SQL 語法一致
-#     record = (restaurant_id, restaurant_name, total_score, reviews_count, state, category_name, google_map_url)
+#     record = (restaurant_id, restaurant_name, avg_score, reviews_count, state, category_name, google_map_url)
 #     insert_data_list.append(record)
 
 # # 3. 連線至 MySQL 並寫入資料
@@ -143,7 +143,7 @@ print("="*50)
 #         # 使用 %s 作為預留位置，PyMySQL 會自動幫你處理特殊字元，避免 SQL Injection
 #         sql = """
 #         INSERT INTO restaurant
-#         (restaurant_id, restaurant_name, total_score, reviews_count, state, category_name, google_map_url) 
+#         (restaurant_id, restaurant_name, avg_score, reviews_count, state, category_name, google_map_url) 
 #         VALUES (%s, %s, %s, %s, %s, %s, %s)
 #         """
         
@@ -189,7 +189,7 @@ try:
         # 使用 %s 作為預留位置，PyMySQL 會自動幫你處理特殊字元，避免 SQL Injection
         sql = """
         INSERT INTO restaurant
-        (restaurant_id, restaurant_name, total_score, reviews_count, state, category_name, google_map_url) 
+        (restaurant_id, restaurant_name, avg_score, reviews_count, state, category_name, google_map_url) 
         VALUES (%s, %s, %s, %s, %s, %s, %s)
         """
         
