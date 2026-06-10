@@ -1,7 +1,7 @@
 Table restaurant {
-  restaurant_id varchar(30) [pk, not null, note: "餐廳編號(from apify)"]
+  restaurant_id varchar(27) [pk, not null, note: "餐廳編號(from apify)"]
   restaurant_name varchar(500) [not null, note: "餐廳名稱"]
-  total_score decimal(2,1) [note: "平均分數"]
+  avg_score decimal(2,1) [note: "平均分數"]
   reviews_count int [note: "評論數"]
   state char(3) [not null, note: "行政區"]
   category_name varchar(255) [note: "分類"]
@@ -11,9 +11,9 @@ Table restaurant {
 }
 
 Table low_rating_restaurant {
-  restaurant_id varchar(30) [pk, not null, note: "餐廳編號(from apify)"]
+  restaurant_id varchar(27) [pk, not null, note: "餐廳編號(from apify)"]
   restaurant_name varchar(500) [not null, note: "餐廳名稱"]
-  total_score decimal(2,1) [note: "平均分數"]
+  avg_score decimal(2,1) [note: "平均分數"]
   reviews_count int [note: "評論數"]
   state char(3) [not null, note: "行政區"]
   category_name varchar(255) [note: "分類"]
@@ -24,16 +24,14 @@ Table low_rating_restaurant {
 
 Table reviews {
   review_id varchar(128) [pk, not null, note: "評論編號(from apify)"]
-  restaurant_id varchar(30) [not null, note: "餐廳編號"]
+  restaurant_id varchar(27) [not null, note: "餐廳編號"]
 
-  total_stars tinyint [not null, note: "總評分1~5"]
+  review_score tinyint [not null, note: "總評分1~5"]
   review_content text [note: "評論內容"]
 
-  food_rating tinyint [note: "評分-食物"]
-  service_rating tinyint [note: "評分-服務"]
-  atmosphere_rating tinyint [note: "評分-環境氣氛"]
-
-  is_deleted bool [not null, default: 0, note: "是否刪除，0=否，1=是，代表不進行分析"]
+  food_score tinyint [note: "評分-食物"]
+  service_score tinyint [note: "評分-服務"]
+  atmosphere_score tinyint [note: "評分-環境氣氛"]
 
   created_at datetime [not null, default: `now()`, note: "資料建立時間"]
   updated_at datetime [not null, default: `now()`, note: "資料更新時間"]
@@ -44,7 +42,7 @@ Table issue_type {
   issue_code char(1) [not null, note: "問題類型代碼"]
   issue_ename varchar(20) [not null, note: "問題類型英文名稱"]
   issue_cname varchar(10) [not null, note: "問題類型中文名稱"]
-  key_words varchar(200) [note: "AI用來分析的關鍵字"]
+  key_words varchar(200) [note: "給AI用來分析的關鍵字"]
 }
 
 Table reviews_analyze {
@@ -54,9 +52,9 @@ Table reviews_analyze {
   issue_type_id tinyint [not null, note: "問題類型ID"]
 
   sentiment tinyint [not null, note: "情緒：1=正向，-1=負向"]
-  ai_feeback_keywords varcher(500) [note: "AI抓出的關鍵字"]
+  ai_feeback_keywords varchar(500) [note: "AI抓出的關鍵字"]
+
   created_at datetime [not null, default: `now()`, note: "資料建立時間"]
-  updated_at datetime [not null, default: `now()`, note: "資料更新時間"]
 }
 
 Ref: reviews.restaurant_id > low_rating_restaurant.restaurant_id

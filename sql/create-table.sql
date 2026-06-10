@@ -3,9 +3,9 @@ create database REVIEW;
 use REVIEW;
 
 create table restaurant(
-	restaurant_id varchar(30) not null comment '餐廳編號(from apify)',
+	restaurant_id varchar(27) not null comment '餐廳編號(from apify)',
     restaurant_name VARCHAR(500) not null comment '餐廳名稱',
-    total_score DECIMAL(2,1) comment '平均分數',
+    avg_score DECIMAL(2,1) comment '平均分數',
     reviews_count int comment '評論數',
     state char(3) not null comment '行政區',
     category_name varchar(255) comment '分類',
@@ -16,9 +16,9 @@ create table restaurant(
 );
 
 create table low_rating_restaurant(
-	restaurant_id varchar(30) not null comment '餐廳編號(from apify)',
+	restaurant_id varchar(27) not null comment '餐廳編號(from apify)',
     restaurant_name VARCHAR(500) not null comment '餐廳名稱',
-    total_score DECIMAL(2,1) comment '平均分數',
+    avg_score DECIMAL(2,1) comment '平均分數',
     reviews_count int comment '評論數',
     state char(3) not null comment '行政區',
     category_name varchar(255) comment '分類',
@@ -30,13 +30,12 @@ create table low_rating_restaurant(
 
 create table reviews(
 	review_id varchar(128) NOT NULL comment '評論編號(from apify)',
-	restaurant_id varchar(30) NOT NULL comment '餐廳編號',
-    total_stars tinyint unsigned NOT NULL comment '總評分1~5',
+	restaurant_id varchar(27) NOT NULL comment '餐廳編號',
+    review_score tinyint unsigned NOT NULL comment '總評分1~5',
     review_content TEXT comment '評論內容',
-    food_rating tinyint unsigned default null comment '評分-食物',
-    service_rating tinyint unsigned default null comment '評分-服務',
-    atmosphere_rating tinyint unsigned default null comment '評分-環境氣氛',
-    is_deleted bool not null default 0 comment '是否刪除，0=否, 1=是，代表不進行分析',
+    food_score tinyint unsigned default null comment '評分-食物',
+    service_score tinyint unsigned default null comment '評分-服務',
+    atmosphere_score tinyint unsigned default null comment '評分-環境氣氛',
     created_at datetime not null default now() comment '資料建立時間',
 	updated_at datetime not null default now() comment '資料更新時間',
     PRIMARY KEY(review_id),
@@ -71,7 +70,6 @@ create table reviews_analyze(
     sentiment tinyint not null comment '情緒 1=正向, -1=負向',
     ai_feeback_keywords varchar(500) comment 'AI抓出的關鍵字',
     created_at datetime not null default now() comment '資料建立時間',
-	updated_at datetime not null default now() comment '資料更新時間',
     PRIMARY KEY(analyze_id),
     constraint FK_ANALYZE_REVIEWS foreign key (review_id)
     references reviews(review_id),
