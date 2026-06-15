@@ -11,7 +11,6 @@ create table restaurant(
     category_name varchar(255) comment '分類',
     google_map_url TEXT not null comment '餐廳網址連結',
     created_at datetime not null default now() comment '資料建立時間',
-	updated_at datetime not null default now() comment '資料更新時間',
 	PRIMARY KEY(restaurant_id)
 );
 

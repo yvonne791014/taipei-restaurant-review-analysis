@@ -7,7 +7,6 @@ Table restaurant {
   category_name varchar(255) [note: "分類"]
   google_map_url text [not null, note: "餐廳網址連結"]
   created_at datetime [not null, default: `now()`, note: "資料建立時間"]
-  updated_at datetime [not null, default: `now()`, note: "資料更新時間"]
 }
 
 Table low_rating_restaurant {
