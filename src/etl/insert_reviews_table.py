@@ -24,26 +24,26 @@ def etl_csv_to_reviews_pymysql(csv_path):
     df = pd.read_csv(csv_path)
     
     # 過濾掉主鍵 review-ID 為空的髒資料
-    df = df.dropna(subset=['review-ID'])
+    df = df.dropna(subset=['review_id'])
     
     # 建立一個新的 DataFrame 來對應你的【最新版】DB 欄位
     cleaned_df = pd.DataFrame()
     
     # 欄位對應與清洗 (完全對應最新 SQL 欄位名稱)
-    cleaned_df['review_id'] = df['review-ID'].str.strip()
+    cleaned_df['review_id'] = df['review_id'].str.strip()
     cleaned_df['restaurant_id'] = df['restaurant_id'].str.strip()
     
     # total_stars 處理：轉成數字，若有空值先填 0（因 SQL 設定 NOT NULL），型態轉整數 (tinyint)
-    cleaned_df['total_stars'] = pd.to_numeric(df['total_stars'], errors='coerce').fillna(0).astype(int)
+    cleaned_df['review_score'] = pd.to_numeric(df['review_score'], errors='coerce').fillna(0).astype(int)
     
     # review_content 處理：將 NaN 轉為 None (在 MySQL 中會呈現為 NULL)
-    cleaned_df['review_content'] = df['text'].astype(object).where(df['text'].notna(), None)
+    cleaned_df['review_content'] = df['review_content'].astype(object).where(df['review_content'].notna(), None)
     
     # 食物、服務、環境評分處理：依據最新 Schema 規範 (default null)
     # 轉為數字，將無法轉換的髒資料或空值(NaN)換成 Python 的 None，寫入 MySQL 時就會是完美的 NULL
-    cleaned_df['food_rating'] = pd.to_numeric(df['food_rating'], errors='coerce').astype(object).where(pd.to_numeric(df['food_rating'], errors='coerce').notna(), None)
-    cleaned_df['service_rating'] = pd.to_numeric(df['service_rating'], errors='coerce').astype(object).where(pd.to_numeric(df['service_rating'], errors='coerce').notna(), None)
-    cleaned_df['atmosphere_rating'] = pd.to_numeric(df['atmosphere_rating'], errors='coerce').astype(object).where(pd.to_numeric(df['atmosphere_rating'], errors='coerce').notna(), None)
+    cleaned_df['food_score'] = pd.to_numeric(df['food_score'], errors='coerce').astype(object).where(pd.to_numeric(df['food_score'], errors='coerce').notna(), None)
+    cleaned_df['service_score'] = pd.to_numeric(df['service_score'], errors='coerce').astype(object).where(pd.to_numeric(df['service_score'], errors='coerce').notna(), None)
+    cleaned_df['atmosphere_score'] = pd.to_numeric(df['atmosphere_score'], errors='coerce').astype(object).where(pd.to_numeric(df['atmosphere_score'], errors='coerce').notna(), None)
     
     print("📊 本地端資料清洗完成！準備連線至 MySQL 檢查外鍵約束...")
 
@@ -84,14 +84,14 @@ def etl_csv_to_reviews_pymysql(csv_path):
         # 準備 SQL 語法 (欄位名稱已更新為最新版，並改用 ON DUPLICATE KEY UPDATE 避免重複執行時卡住)
         sql = """
         INSERT INTO reviews 
-        (review_id, restaurant_id, total_stars, review_content, food_rating, service_rating, atmosphere_rating) 
-        VALUES (%s, %s, %s, %s, %s, %s, %s)
+        (review_id, restaurant_id, review_score, review_content, food_score, service_score, atmosphere_score,created_at,updated_at) 
+        VALUES (%s, %s, %s, %s, %s, %s, %s, NOW(), NOW())
         ON DUPLICATE KEY UPDATE 
-            total_stars = VALUES(total_stars),
+            review_score = VALUES(review_score),
             review_content = VALUES(review_content),
-            food_rating = VALUES(food_rating),
-            service_rating = VALUES(service_rating),
-            atmosphere_rating = VALUES(atmosphere_rating),
+            food_score = VALUES(food_score),
+            service_score = VALUES(service_score),
+            atmosphere_score = VALUES(atmosphere_score),
             updated_at = NOW();
 
 
@@ -120,7 +120,7 @@ if __name__ == "__main__":
     
     # 2. 透過 '..' 往上跳兩層回到 \reviews，然後再進入 \data\ 尋找對應的 CSV
     # 這裡我特別將檔名換成你剛才畫面上顯示的 'ChIJceaYPzmpQjQRlc1-wYpELkw_part1.csv'
-    csv_target_path = os.path.abspath(os.path.join(current_dir, '..', '..', 'data', 'ChIJ5RyKyfOuQjQRSg2b2u0bt3s_part1.csv'))
+    csv_target_path = os.path.abspath(os.path.join(current_dir, '..', '..', 'data', 'reviews_ChIJuylXlmysQjQR9Ki2eWi7IfA.csv'))
     
     print(f"CSV 路徑為:\n {csv_target_path}\n")
     
