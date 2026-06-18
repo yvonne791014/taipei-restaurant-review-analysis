@@ -3,7 +3,6 @@ import csv
 import json
 import random
 import re
-from datetime import datetime
 from pathlib import Path
 from typing import Any
 from urllib.parse import parse_qsl, urlencode, urlparse, urlunparse
@@ -551,10 +550,8 @@ async def scrape_reviews_to_json(
         rows.sort(key=lambda row: (review_sort_score(row), -review_sort_timestamp(row)))
         if max_reviews is not None:
             rows = rows[:max_reviews]
-        created_at = datetime.now().date().isoformat()
         for row in rows:
             row.pop("_sort_timestamp", None)
-            row["created_at"] = created_at
 
         output_path.parent.mkdir(parents=True, exist_ok=True)
         fieldnames = [
@@ -565,7 +562,6 @@ async def scrape_reviews_to_json(
             "food_score",
             "service_score",
             "atmosphere_score",
-            "created_at",
         ]
         with output_path.open("w", encoding="utf-8-sig", newline="") as csv_file:
             writer = csv.DictWriter(csv_file, fieldnames=fieldnames, extrasaction="ignore")
