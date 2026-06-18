@@ -2,6 +2,7 @@
 
 from numpy import select
 import pymysql
+import json
 
 # 設定資料庫連線資訊
 host = 'localhost'
@@ -70,7 +71,22 @@ for row in data:
     # 把小字典丟進大 list 裡面
     restaurant_list.append(item_dict)
 
-#print(restaurant_list)
+print(restaurant_list)
+# ==================== 🛠️ 改成存成 JSON 檔 ====================
+if restaurant_list:
+    json_filename = "beitou_low_rating_restaurants.json"
+
+    # 使用 utf-8 開啟檔案，並用 json.dump 一鍵寫入
+    with open(json_filename, mode="w", encoding="utf-8") as file:
+        # indent=4 可以讓輸出的 JSON 檔自動排版縮排，變得像程式碼一樣好讀
+        # ensure_ascii=False 可以確保裡面的中文不會被轉成 \u4e2d\u6587 這種編碼
+        json.dump(restaurant_list, file, indent=4, ensure_ascii=False)
+
+    print(f"✅ 檔案已成功儲存為 JSON 至: {json_filename}")
+else:
+    print("⚠️ 找不到符合條件的北投區餐廳資料，未產生 JSON 檔。")
+
+
 
 # 確保不論程式成功或失敗，都會關閉資源
 cursor.close()

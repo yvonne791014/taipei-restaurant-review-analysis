@@ -19,14 +19,15 @@ cursor = conn.cursor()
 
 sql = '''
 
-	insert ignore into 
-	low_rating_restaurant
-	select *
-	from 
-	restaurant
-	where 
-	avg_score <= 3.5
-    and reviews_count >= 100
+	INSERT IGNORE INTO low_rating_restaurant
+        (restaurant_id, restaurant_name, avg_score, reviews_count, state, category_name, google_map_url, created_at, updated_at) 
+    SELECT 
+        restaurant_id, restaurant_name, avg_score, reviews_count, state, category_name, google_map_url, NOW(), NOW()
+    FROM 
+        restaurant
+    WHERE 
+        avg_score <= 3.5
+        AND reviews_count >= 100
 
 '''
 
