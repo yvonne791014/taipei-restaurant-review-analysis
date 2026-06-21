@@ -4,6 +4,7 @@ import time
 from dotenv import load_dotenv  # 引入載入環境變數的套件 (Import dotenv)
 from google import genai
 from google.genai import types
+import pymysql  # 引入 MySQL 連線套件 (Import pymysql)
 
 # 自動尋找並載入 .env 檔案中的環境變數
 load_dotenv()
@@ -12,19 +13,47 @@ def init_gemini_client():
     """
     函式 1：初始化並回傳 Gemini 客戶端
     """
-    # 從系統或 .env 中抓取變數值
+    # 從環境變數抓取變數值，避免密鑰外洩 (Secure API key)
     api_key = os.getenv("GEMINI_API_KEY")
     
     if not api_key:
         raise ValueError("❌ 錯誤：在環境變數或 .env 檔案中找不到 'GEMINI_API_KEY'！")
         
-    # 初始化 Client 並回傳
     return genai.Client(api_key=api_key)
+
+
+def get_reviews_from_db():
+    """
+    函式 2：從 MySQL 資料庫撈取評論資料（純讀取測試）
+    """
+    # 從環境變數讀取資料庫設定，完全不寫死連線資訊 (Database settings)
+    connection = pymysql.connect(
+        host=os.getenv("DB_HOST", "localhost"),
+        port=int(os.getenv("DB_PORT", 3306)),
+        user=os.getenv("DB_USER", "root"),
+        passwd=os.getenv("DB_PASSWORD"),
+        db=os.getenv("DB_NAME", "REVIEW"),
+        charset='utf8mb4',
+        cursorclass=pymysql.cursors.DictCursor  # 讓撈出來的資料自動變成 dict 格式
+    )
+    
+    try:
+        with connection.cursor() as cursor:
+            # 使用你截圖中的精準 SQL 語法 (Targeted SQL query)
+            sql = """
+            SELECT review_id, restaurant_id, review_score, review_content
+            FROM REVIEW.reviews
+            where review_score <= 3 and review_content is not null;
+            """
+            cursor.execute(sql)
+            return cursor.fetchall()
+    finally:
+        connection.close()  # 關閉資料庫連線 (Close database connection)
 
 
 def analyze_review_with_gemini(client, text_content):
     """
-    函式 2：負責將單筆評論丟給 Gemini 進行多面向情感分析
+    函式 3：負責將單筆評論丟給 Gemini 進行多面向情感分析
     """
     prompt = f"""
 你是一個精準的餐廳評論多面向情感分析器 (Aspect-Based Sentiment Analysis Analyzer)。
@@ -36,7 +65,7 @@ def analyze_review_with_gemini(client, text_content):
 - service (服務): 包含服務態度、速度、店員表現等。
 - hygiene (衛生): 包含乾淨、髒亂、餐具衛生等。
 - queue (排隊): 包含等很久、排隊人潮、排很久等。
-- environment (環境): 包含裝潢、氣氛、噪音、擁擠程度等。
+- environment (環境): 包含裝潢、氣氛、噪音、擁擠程度等.
 - parking (停車): 包含好不好停車、停車場等。
 
 【情感分類標籤】
@@ -78,7 +107,7 @@ def analyze_review_with_gemini(client, text_content):
 
 def main():
     """
-    函式 3：主程式控制流程
+    函式 4：主程式控制流程
     """
     # 1. 初始化 Gemini Client
     try:
@@ -87,35 +116,33 @@ def main():
         print(e)
         return
 
-    # 2. 讀取 JSON 檔案
-    file_path = "data/測試用評論.json"
+    # 2. 從 MySQL 讀取資料
     try:
-        with open(file_path, "r", encoding="utf-8") as f:
-            reviews_data = json.load(f)
-        print(f"✅ 成功讀取檔案！總共有 {len(reviews_data)} 筆資料。")
-    except FileNotFoundError:
-        print(f"❌ 錯誤：找不到檔案 '{file_path}'，請確認執行路徑是否正確。")
+        reviews_data = get_reviews_from_db()
+        print(f"✅ 成功從資料庫 [REVIEW.reviews] 讀取資料！總共有 {len(reviews_data)} 筆符合條件。")
+    except Exception as e:
+        print(f"❌ 錯誤：資料庫連線或查詢失敗：{e}")
         return
 
-    # 3. 過濾有效評論（加上 1~3 顆星的篩選）
+    # 3. 過濾有效評論
     valid_reviews = [
         r for r in reviews_data 
-        if r.get("text") is not None 
-        and r["text"].strip() != ""
-        and r.get("rating") in [1, 2, 3]  # 👈 這裡加入了星星過濾！只挑 1、2、3 顆星
+        if r.get("review_content").strip() != ""
     ]
-    print(f"📊 含有評論文字且評分為 1~3 星的資料共有 {len(valid_reviews)} 筆。\n")
+    print(f"📊 排除空字串後，有效低星評論共有 {len(valid_reviews)} 筆。\n")
 
     # 4. 開始迴圈測試
-    max_tests = 10
-    print(f"=== 🚀 開始使用香香的 Gemini 測試前 {max_tests} 筆有效低星評論 (不寫入檔案) ===\n")
+    max_tests = 5
+    print(f"=== 🚀 開始使用香香的 Gemini 測試前 {max_tests} 筆有效低星評論 (純印出，不寫入) ===\n")
 
     for idx, review in enumerate(valid_reviews[:max_tests], start=1):
-        author_name = review.get("author", {}).get("name", "匿名")
-        review_text = review["text"]
-        review_rating = review.get("rating", "無")
+        review_id = review.get("review_id", "未知ID")
+        restaurant_id = review.get("restaurant_id", "未知餐廳")
+        review_text = review["review_content"]
+        review_rating = review.get("review_score", "無")
         
-        print(f"【測試第 {idx} 筆】 評論者：{author_name} ({review_rating} 星)")
+        # 配合資料庫欄位，改印出 review_id 與 restaurant_id
+        print(f"【測試第 {idx} 筆】 評論ID：{review_id} | 餐廳ID：{restaurant_id} ({review_rating} 星)")
         print(f"📝 原始評論：\n\"{review_text}\"")
         
         # 執行分析
@@ -128,10 +155,10 @@ def main():
             
         print("-" * 60 + "\n")
         
-        # 根據要求修改：每次呼叫完強迫休息 5 秒 (Sleep 5s)
+        # 每次呼叫完強迫休息 2 秒 (Sleep 2s)
         if idx < max_tests:
-            print("⏳ 休息 5 秒後繼續下一筆...")
-            time.sleep(5)
+            print("⏳ 休息 2 秒後繼續下一筆...")
+            time.sleep(2)
 
     print("=== 🏁 Gemini 測試結束 ===")
 
